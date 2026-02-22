@@ -161,17 +161,15 @@ export default function TimerRunning({
               }}>:</div>
             )}
             <div style={{ textAlign:'center' }}>
-              <div style={{ width:260, height:210, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
-                <div style={{
-                  fontSize: 205, fontFamily: activeFont.family, fontWeight: activeFont.weight,
-                  lineHeight: 1,
-                  letterSpacing: fontKey === 'mono' ? '0.02em' : '-0.03em',
-                  color: 'white', textShadow: numGlow,
-                  fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum" 1',
-                  transition: 'text-shadow 0.6s', whiteSpace: 'nowrap',
-                }}>
-                  {seg.v}
-                </div>
+              <div style={{
+                fontSize: 205, fontFamily: activeFont.family, fontWeight: activeFont.weight,
+                lineHeight: 1,
+                letterSpacing: fontKey === 'mono' ? '0.02em' : '-0.03em',
+                color: 'white', textShadow: numGlow,
+                fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum" 1',
+                transition: 'text-shadow 0.6s', whiteSpace: 'nowrap',
+              }}>
+                {seg.v}
               </div>
               <div style={{ fontSize:10, letterSpacing:'0.42em', color:'rgba(255,255,255,0.25)', marginTop:18 }}>
                 {seg.label}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion as Motion } from 'motion/react';
 import { useTimer } from './hooks/useTimer';
 import { useSessions } from './hooks/useSessions';
 import BottomNav from './components/BottomNav';
@@ -10,7 +11,7 @@ import StatsDashboard from './components/StatsDashboard';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('timer');
-  const [currentCategory, setCurrentCategory] = useState('other');
+  const [currentCategory, setCurrentCategory] = useState('math');
   const [sessionStartTime, setSessionStartTime] = useState(null);
 
   const timer = useTimer();
@@ -59,20 +60,20 @@ export default function App() {
   const showBottomNav = !isTimerActive && !timer.isFinished;
 
   return (
-    <div
-      className="min-h-screen w-full relative flex items-center justify-center font-sans overflow-hidden"
-      style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2560&q=80')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
-      {/* Backdrop overlay */}
-      <div
-        className={`absolute inset-0 transition-all duration-1000 ${
-          timer.isActive ? 'bg-black/30 backdrop-blur-sm' : 'bg-black/40 backdrop-blur-md'
-        }`}
-      />
+    <div className="min-h-screen w-full relative flex items-center justify-center font-sans overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Animated background blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <Motion.div
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
+        />
+        <Motion.div
+          animate={{ scale: [1.2, 1, 1.2], rotate: [90, 0, 90] }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+        />
+      </div>
 
       {/* Finished overlay (covers everything) */}
       {timer.isFinished && (

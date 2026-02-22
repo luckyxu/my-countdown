@@ -46,11 +46,11 @@ export default function StatsDashboard({ sessions }) {
     <div className="w-full max-w-2xl flex flex-col gap-4 pb-24 pt-4">
       {/* Hero numbers */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 text-center shadow-xl">
           <p className="text-white/60 text-xs mb-2">今日专注</p>
           <p className="text-4xl font-bold text-white">{formatMinutes(todaySeconds)}</p>
         </div>
-        <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 text-center shadow-xl">
           <p className="text-white/60 text-xs mb-2">连续打卡</p>
           <p className="text-4xl font-bold text-white">
             {streak}<span className="text-lg font-normal text-white/60 ml-1">天</span>
@@ -59,7 +59,7 @@ export default function StatsDashboard({ sessions }) {
       </div>
 
       {/* Weekly bar chart */}
-      <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-3xl p-6">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
         <p className="text-white/70 text-sm font-medium mb-5">本周专注时长</p>
         <div className="flex items-end justify-between gap-2 h-28">
           {weekData.map((d) => {
@@ -82,7 +82,7 @@ export default function StatsDashboard({ sessions }) {
 
       {/* Category distribution */}
       {catStats.length > 0 ? (
-        <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-3xl p-6">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
           <p className="text-white/70 text-sm font-medium mb-5">科目分布</p>
           <div className="flex flex-col gap-4">
             {catStats.map((cat) => (

@@ -39,7 +39,7 @@ export default function SessionHistory({ sessions, onDelete }) {
   return (
     <div className="w-full max-w-2xl flex flex-col gap-4 pb-24 pt-4">
       {/* Today summary */}
-      <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 text-center shadow-2xl">
         <p className="text-white/60 text-sm mb-1">今日累计专注</p>
         <p className="text-5xl font-bold text-white">
           {todayHours > 0 ? `${todayHours}h ` : ''}{todayMins}m
@@ -59,7 +59,7 @@ export default function SessionHistory({ sessions, onDelete }) {
               <span className="text-white/70 text-sm font-medium">{formatDateHeader(dateKey)}</span>
               <span className="text-white/40 text-xs">{formatDuration(totalSecondsForDate(sessions, dateKey))}</span>
             </div>
-            <div className="bg-black/30 backdrop-blur-xl border border-white/20 rounded-3xl overflow-hidden">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-xl">
               {groups[dateKey].map((session, i) => {
                 const cat = CATEGORY_MAP[session.category] || CATEGORIES[0];
                 return (

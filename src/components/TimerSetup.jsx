@@ -1,145 +1,267 @@
 import React, { useState } from 'react';
-import { Play, Settings2 } from 'lucide-react';
+import { motion as Motion } from 'motion/react';
+import {
+  Play, Clock,
+  BookOpen, Calculator, Globe, Atom, Beaker, Map,
+  Coffee, GraduationCap, Flame,
+  ChevronUp, ChevronDown, ChevronsUp, ChevronsDown,
+} from 'lucide-react';
 import { CATEGORIES, DEFAULT_CATEGORY } from '../data/categories';
 import { useFatigue } from '../hooks/useFatigue';
 
 const PRESETS = [
-  { label: '番茄钟',   minutes: 25, desc: '短时高效' },
-  { label: '课堂',     minutes: 45, desc: '标准学习' },
-  { label: '深度专注', minutes: 90, desc: '长时攻坚' },
+  { label: '番茄钟 25分', minutes: 25, icon: Coffee,        gradient: 'from-rose-500 to-pink-500'     },
+  { label: '课堂 45分',   minutes: 45, icon: GraduationCap, gradient: 'from-blue-500 to-cyan-500'     },
+  { label: '深度 90分',   minutes: 90, icon: Flame,         gradient: 'from-purple-500 to-fuchsia-500'},
 ];
+
+const CATEGORY_ICONS = {
+  chinese:   BookOpen,
+  math:      Calculator,
+  english:   Globe,
+  physics:   Atom,
+  chemistry: Beaker,
+  geography: Map,
+};
+
+function TimeInput({ value, onChange, max, label }) {
+  const [isFocused, setIsFocused] = useState(false);
+  const num = value;
+
+  const increment = (amount) => {
+    const next = num + amount;
+    onChange(next > max ? max : next);
+  };
+
+  const decrement = (amount) => {
+    const next = num - amount;
+    onChange(next < 0 ? 0 : next);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      {/* +10 / +1 */}
+      <div className="flex gap-1">
+        <Motion.button
+          whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+          onClick={() => increment(10)}
+          className="text-white/60 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"
+        >
+          <ChevronsUp className="w-4 h-4" />
+        </Motion.button>
+        <Motion.button
+          whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+          onClick={() => increment(1)}
+          className="text-white/60 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"
+        >
+          <ChevronUp className="w-4 h-4" />
+        </Motion.button>
+      </div>
+
+      {/* Number display */}
+      <div className={`bg-white/10 backdrop-blur-md rounded-2xl border-2 transition-all duration-300 ${isFocused ? 'border-blue-400 shadow-lg shadow-blue-500/30' : 'border-white/20'}`}>
+        <input
+          type="number"
+          value={num.toString().padStart(2, '0')}
+          onChange={(e) => {
+            const v = e.target.value.replace(/\D/g, '');
+            if (v === '') { onChange(0); return; }
+            const n = parseInt(v, 10);
+            onChange(n > max ? max : n < 0 ? 0 : n);
+          }}
+          onClick={(e) => e.target.select()}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          min={0}
+          max={max}
+          className="w-24 bg-transparent text-5xl font-bold text-white text-center p-4 outline-none tabular-nums [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+      </div>
+
+      {/* -1 / -10 */}
+      <div className="flex gap-1">
+        <Motion.button
+          whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+          onClick={() => decrement(1)}
+          className="text-white/60 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"
+        >
+          <ChevronDown className="w-4 h-4" />
+        </Motion.button>
+        <Motion.button
+          whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+          onClick={() => decrement(10)}
+          className="text-white/60 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"
+        >
+          <ChevronsDown className="w-4 h-4" />
+        </Motion.button>
+      </div>
+
+      <span className="text-white/50 text-xs uppercase tracking-wider font-medium">{label}</span>
+    </div>
+  );
+}
 
 export default function TimerSetup({ onStart }) {
   const fatigue = useFatigue();
-  const [hours, setHours] = useState('');
-  const [minutes, setMinutes] = useState('');
-  const [seconds, setSeconds] = useState('');
+  const [hours,   setHours]   = useState(0);
+  const [minutes, setMinutes] = useState(25);
+  const [seconds, setSeconds] = useState(0);
   const [category, setCategory] = useState(DEFAULT_CATEGORY);
 
-  const handleInputChange = (setter, maxLimit) => (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value === '') { setter(''); return; }
-    const num = parseInt(value, 10);
-    setter((num > maxLimit ? maxLimit : num).toString());
-  };
-
   const applyPreset = (mins) => {
-    setHours('');
-    setMinutes(mins.toString());
-    setSeconds('');
+    setHours(0);
+    setMinutes(mins);
+    setSeconds(0);
   };
 
   const handleStart = () => {
-    const h = parseInt(hours || '0', 10);
-    const m = parseInt(minutes || '0', 10);
-    const s = parseInt(seconds || '0', 10);
-    const total = h * 3600 + m * 60 + s;
+    const total = hours * 3600 + minutes * 60 + seconds;
     if (total > 0) onStart(total, category);
   };
 
-  const hasValue = hours || minutes || seconds;
+  const hasValue = hours > 0 || minutes > 0 || seconds > 0;
 
   return (
-    <div className="relative z-10 w-full max-w-4xl mx-4 animate-in slide-in-from-bottom-8 duration-700">
-      {/* Fatigue greeting banner */}
-      <div className="text-center mb-5">
-        <p className={`text-sm font-medium ${fatigue.colorClass} mb-1`}>
+    <div className="relative z-10 w-full max-w-4xl mx-4 py-8 overflow-y-auto max-h-screen">
+      {/* Header */}
+      <Motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-8"
+      >
+        <div className="inline-flex items-center gap-3 mb-2">
+          <Clock className="w-7 h-7 text-white" />
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            沉浸式倒计时
+          </h1>
+        </div>
+        <p className={`text-sm font-medium ${fatigue.colorClass}`}>
           {fatigue.emoji} {fatigue.greeting}，{fatigue.label} · 推荐 {fatigue.recommendedMinutes} 分钟
         </p>
-        <p className="text-white/50 text-xs">{fatigue.message}</p>
-      </div>
+        <p className="text-white/40 text-xs mt-1">{fatigue.message}</p>
+      </Motion.div>
 
-      <div className="p-8 md:p-10 bg-black/30 backdrop-blur-xl border border-white/20 rounded-[3rem] shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-        <h1 className="text-3xl md:text-4xl font-light text-center mb-8 flex items-center justify-center gap-3 text-white tracking-wide">
-          <Settings2 className="w-8 h-8 text-white/80" />
-          沉浸式倒计时
-        </h1>
-
-        {/* Category selector — 3×2 card grid */}
-        <div className="grid grid-cols-3 gap-3 mb-8">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.key}
-              onClick={() => setCategory(cat.key)}
-              className={`flex flex-col items-center justify-center py-4 gap-2 rounded-2xl border transition-all ${
-                category === cat.key
-                  ? `${cat.bgClass} border-white/40 text-white shadow-[0_0_14px_rgba(255,255,255,0.12)] scale-[1.03]`
-                  : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <span className="text-2xl leading-none">{cat.emoji}</span>
-              <span className="text-sm font-medium">{cat.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Preset buttons */}
-        <div className="grid grid-cols-3 gap-3 mb-8">
-          {PRESETS.map(({ label, minutes: mins, desc }) => {
-            const isRecommended = mins === fatigue.recommendedMinutes;
-            return (
-              <button
-                key={mins}
-                onClick={() => applyPreset(mins)}
-                className={`relative py-4 rounded-2xl border transition-all text-center ${
-                  isRecommended
-                    ? 'bg-white/20 border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.15)]'
-                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                {isRecommended && (
-                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    推荐
-                  </span>
-                )}
-                <div className="text-sm font-semibold mb-1 opacity-90">{label}</div>
-                <div className="text-2xl font-bold">{mins}</div>
-                <div className="text-xs opacity-70 mt-0.5">分钟</div>
-                <div className="text-xs opacity-50 mt-1">{desc}</div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Custom time input */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10 mb-8">
-          <div className="flex flex-col items-center flex-1 w-full">
-            <input
-              type="text" inputMode="numeric" value={hours}
-              onChange={handleInputChange(setHours, 999)} placeholder="00"
-              className="w-full bg-white/5 text-center text-5xl md:text-6xl font-mono py-6 rounded-3xl border border-white/10 focus:border-white/50 focus:bg-white/10 outline-none transition-all text-white placeholder:text-white/20 shadow-inner"
-            />
-            <label className="text-sm text-white/60 mt-3 font-medium tracking-widest uppercase">Hours (0-999)</label>
-          </div>
-          <span className="text-5xl font-light text-white/30 hidden md:block pb-8">:</span>
-          <div className="flex flex-col items-center flex-1 w-full">
-            <input
-              type="text" inputMode="numeric" value={minutes}
-              onChange={handleInputChange(setMinutes, 59)} placeholder="00"
-              className="w-full bg-white/5 text-center text-5xl md:text-6xl font-mono py-6 rounded-3xl border border-white/10 focus:border-white/50 focus:bg-white/10 outline-none transition-all text-white placeholder:text-white/20 shadow-inner"
-            />
-            <label className="text-sm text-white/60 mt-3 font-medium tracking-widest uppercase">Minutes (0-59)</label>
-          </div>
-          <span className="text-5xl font-light text-white/30 hidden md:block pb-8">:</span>
-          <div className="flex flex-col items-center flex-1 w-full">
-            <input
-              type="text" inputMode="numeric" value={seconds}
-              onChange={handleInputChange(setSeconds, 59)} placeholder="00"
-              className="w-full bg-white/5 text-center text-5xl md:text-6xl font-mono py-6 rounded-3xl border border-white/10 focus:border-white/50 focus:bg-white/10 outline-none transition-all text-white placeholder:text-white/20 shadow-inner"
-            />
-            <label className="text-sm text-white/60 mt-3 font-medium tracking-widest uppercase">Seconds (0-59)</label>
+      {/* Category tabs */}
+      <Motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-6"
+      >
+        <div className="bg-white/5 backdrop-blur-md rounded-3xl p-2 border border-white/10">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+            {CATEGORIES.map((cat) => {
+              const Icon = CATEGORY_ICONS[cat.key];
+              const isSelected = cat.key === category;
+              return (
+                <Motion.button
+                  key={cat.key}
+                  onClick={() => setCategory(cat.key)}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`relative overflow-hidden rounded-2xl p-3 transition-all duration-300 ${
+                    isSelected
+                      ? `${cat.gradient} shadow-lg shadow-blue-500/30`
+                      : 'bg-transparent hover:bg-white/5'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1.5">
+                    <Icon
+                      className={`w-5 h-5 transition-all duration-300 ${isSelected ? 'text-white' : 'text-white/50'}`}
+                      strokeWidth={isSelected ? 2 : 1.5}
+                    />
+                    <span className={`text-xs transition-all duration-300 ${isSelected ? 'text-white font-semibold' : 'text-white/50 font-medium'}`}>
+                      {cat.label}
+                    </span>
+                  </div>
+                  {isSelected && (
+                    <Motion.div
+                      layoutId="subject-highlight"
+                      className="absolute inset-0 rounded-2xl border-2 border-white/30"
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                </Motion.button>
+              );
+            })}
           </div>
         </div>
+      </Motion.div>
 
-        <button
+      {/* Presets + Time input card */}
+      <Motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mb-6"
+      >
+        <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl">
+          <h2 className="text-white text-xl font-bold mb-5 text-center">设置倒计时</h2>
+
+          {/* Quick presets */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            {PRESETS.map((preset) => {
+              const Icon = preset.icon;
+              const isRec = preset.minutes === fatigue.recommendedMinutes;
+              return (
+                <Motion.button
+                  key={preset.minutes}
+                  onClick={() => applyPreset(preset.minutes)}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`relative bg-gradient-to-br ${preset.gradient} text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-lg flex items-center gap-2 transition-all duration-300`}
+                >
+                  {isRec && (
+                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                      推荐
+                    </span>
+                  )}
+                  <Icon className="w-4 h-4" />
+                  <span>{preset.label}</span>
+                </Motion.button>
+              );
+            })}
+          </div>
+
+          {/* Time inputs */}
+          <div className="flex justify-center items-center gap-4 md:gap-6">
+            <TimeInput value={hours}   onChange={setHours}   max={999} label="小时" />
+            <div className="text-white/30 text-4xl font-bold mb-14">:</div>
+            <TimeInput value={minutes} onChange={setMinutes} max={59}  label="分钟" />
+            <div className="text-white/30 text-4xl font-bold mb-14">:</div>
+            <TimeInput value={seconds} onChange={setSeconds} max={59}  label="秒"  />
+          </div>
+        </div>
+      </Motion.div>
+
+      {/* Start button */}
+      <Motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="flex justify-center"
+      >
+        <Motion.button
+          whileHover={hasValue ? { scale: 1.05 } : {}}
+          whileTap={hasValue ? { scale: 0.95 } : {}}
           onClick={handleStart}
           disabled={!hasValue}
-          className="w-full py-6 bg-white text-black disabled:bg-white/10 disabled:text-white/30 rounded-full font-bold text-xl md:text-2xl transition-all flex items-center justify-center gap-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] disabled:hover:scale-100 disabled:shadow-none"
+          className="relative overflow-hidden bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-white/10 disabled:to-white/10 text-white disabled:text-white/30 px-12 py-5 rounded-full text-xl font-semibold shadow-2xl shadow-blue-500/30 disabled:shadow-none transition-all duration-300"
         >
-          <Play className="w-7 h-7" fill="currentColor" />
-          开启专注时光
-        </button>
-      </div>
+          <div className="flex items-center gap-3">
+            <Play className="w-6 h-6 fill-current" />
+            <span>开启专注时光</span>
+          </div>
+          {hasValue && (
+            <Motion.div
+              className="absolute inset-0 bg-white/20"
+              initial={{ x: '-100%' }}
+              whileHover={{ x: '100%' }}
+              transition={{ duration: 0.5 }}
+            />
+          )}
+        </Motion.button>
+      </Motion.div>
     </div>
   );
 }
